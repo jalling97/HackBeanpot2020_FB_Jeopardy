@@ -15,11 +15,13 @@ from random import seed
 from random import randint
 seed(1)
 
-facebook_dir = "/Users/marissadalonzo/Downloads/facebook-marissadalonzo/"
+facebook_dir = "/home/john/coding/hackbeanpot2020/facebook_data/"
 folders = os.listdir(facebook_dir)
 fp = open("listfile.txt", "w")
 
 data = []
+tokenizer = RegexpTokenizer(r'\w+')
+stop_words = set(stopwords.words('english'))
 for folder in folders: 
 	if folder == "comments":
 		with open(facebook_dir + folder + "/comments.json") as data_file:    
@@ -32,9 +34,7 @@ for folder in folders:
 
 		fp.write("You have commented on " + str(len(df2)) + " posts.\n")
 	
-		stop_words = set(stopwords.words('english'))
 		filtered = []
-		tokenizer = RegexpTokenizer(r'\w+')
 		#comment = comment.encode('ascii','ignore')
 		temp = [x for x in comments if x.lower() != "u"]
 		temp = [x for x in temp if not x.lower() in stop_words]
@@ -119,8 +119,9 @@ for folder in folders:
 		count = 0 
 		for person in people: 
 			if person != ".DS_Store" :
-				with open(facebook_dir + folder +  "/inbox/"+ person + "/message_1.json") as data_file:    
-					temp = json.load(data_file)
+				if os.path.isfile(facebook_dir + folder +  "/inbox/"+ person + "/message_1.json"):
+					with open(facebook_dir + folder +  "/inbox/"+ person + "/message_1.json") as data_file:   
+						temp = json.load(data_file)
 				num_messages.append(len(temp["messages"]))
 			else: 
 				num_messages.append(0)
