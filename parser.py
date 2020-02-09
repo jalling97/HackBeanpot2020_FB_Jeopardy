@@ -17,6 +17,7 @@ seed(1)
 
 facebook_dir = "/Users/marissadalonzo/Downloads/facebook-marissadalonzo/"
 folders = os.listdir(facebook_dir)
+fp = open("listfile.txt", "w")
 
 data = []
 for folder in folders: 
@@ -29,7 +30,7 @@ for folder in folders:
 		for x in range(0, len(df2)):
 			comments.extend([df2[x][0]["comment"]["comment"]])
 
-		data.append(["You have commented on " + str(len(df2)) + " posts"])
+		fp.write("You have commented on " + str(len(df2)) + " posts.\n")
 	
 		stop_words = set(stopwords.words('english'))
 		filtered = []
@@ -45,7 +46,7 @@ for folder in folders:
 			filtered.extend(x)
 
 		occurence_count = Counter(filtered) 
-		data.append(["You tagged " + str(occurence_count.most_common(1)[0][0]) + " in the most posts"])
+		fp.write("You tagged " + str(occurence_count.most_common(1)[0][0]) + " in the most posts.\n")
 
 		titles = df["data_title"].values
 		new_stopwords = ["commented", "post", "video", "timeline", "comment", "photo", "replied", "own"]
@@ -67,15 +68,14 @@ for folder in folders:
 		occurence_count = Counter(filtered) 
 		most = occurence_count.most_common(1)[0][0]
 		test_string = most.replace(",", ' ') 
-		data.append(["You commented on " + test_string + "'s page the most"])
+		fp.write("You commented on " + test_string + "'s page the most.\n")
 
 		first = filtered[-1]
 		first= first.replace(",", ' ') 
-		data.append(["The first person's page you commented on was: " + str(first)])
+		fp.write("The first person's page you commented on was: " + str(first) + ".\n")
 
 		last = filtered[0]
-		data.append([str(last) + " was the most recent page you commented on "])
-		print(data)
+		fp.write(str(last) + " was the most recent page you commented on. \n")
 
 	if folder == "likes_and_reactions": 
 		with open(facebook_dir + folder + "/posts_and_comments.json") as data_file:    
@@ -83,7 +83,7 @@ for folder in folders:
 
 		df = json_normalize(temp, u"reactions", [u'timestamp', u"data"],  record_prefix='data_', errors='ignore')
 		reactions = df["data_title"].dropna().values
-		data.append(["You have reacted to " + str(len(reactions)) + " posts"])
+		fp.write("You have reacted to " + str(len(reactions)) + " posts.\n")
 
 		new_stopwords = ["commented", "post", "video", "timeline", "likes", "photo", "replied", "own"]
 
@@ -102,16 +102,16 @@ for folder in folders:
 		occurence_count = Counter(filtered) 
 		most = occurence_count.most_common(1)[0][0]
 		test_string = most.replace(",", ' ') 
-		data.append(["You reacted to  " + test_string + " the most"])
+		fp.write("You reacted to  " + test_string + " the most.\n")
 		
 
 		first = filtered[-1]
 		first= first.replace(",", ' ') 
-		data.append(["The first person's post you liked was " + str(first)])
+		fp.write("The first person's post you liked was " + str(first) + ".\n")
 
 		last = filtered[0]
 		last= last.replace(",", ' ') 
-		data.append([str(last) + " was the most recent post you reacted to"])
+		fp.write(str(last) + " was the most recent post you reacted to.\n")
 
 	if folder == "messages": 
 		people = os.listdir(facebook_dir + folder + "/inbox/")
@@ -127,7 +127,7 @@ for folder in folders:
 		df = pd.DataFrame({'person' : people, "num_messages" : num_messages})
 		x = df.loc[df['num_messages'].idxmax()]
 		most = x["person"].split("_")
-		data.append(["You messaged " + str(most[0]) + " the most over Facebook Messenger"])
+		fp.write("You messaged " + str(most[0]) + " the most over Facebook Messenger.\n")
 	
 	if folder == "events":
 		with open(facebook_dir + folder + "/your_event_responses.json") as data_file:    
@@ -135,7 +135,7 @@ for folder in folders:
 			declines = temp[u'event_responses'][u'events_declined']
 			event = declines[randint(0, len(declines)-1)]
 
-			data.append(["You declined to attend " + event[u'name']  +" on "  + str(datetime.fromtimestamp(event[u'start_timestamp']))])
+			fp.write("You declined to attend " + event[u'name']  +" on "  + str(datetime.fromtimestamp(event[u'start_timestamp'])) + ".\n")
 	
 	if folder == "location":
 		df = pd.read_json(facebook_dir + folder  + "/location_history.json")
@@ -147,23 +147,22 @@ for folder in folders:
 		occurence_count = Counter(locations) 
 		most = occurence_count.most_common(1)[0][0]
 		test_string = most.replace("u'", '') 
-		data.append(["You spent the most time in " + test_string])
+		fp.write("You spent the most time in " + test_string + ".\n")
 		
 
 		random = temp[randint(0, len(temp)-1)]
-		data.append(["You visited " + random[0][u"name"] + " on "  + str(datetime.fromtimestamp(random[0][u'creation_timestamp']))])
+		fp.write("You visited " + str(random[0][u"name"]) + " on "  + str(datetime.fromtimestamp(random[0][u'creation_timestamp'])) + ".\n")
 
 		first = temp[-1]
-		data.append(["The first place you visited with your Facebook location on was " + first[0][u'name'] + " on "  + str(datetime.fromtimestamp(first[0][u'creation_timestamp']))])
+		fp.write("The first place you visited with your Facebook location on was " + first[0][u'name'] + " on "  + str(datetime.fromtimestamp(first[0][u'creation_timestamp'])) + ".\n")
 		
 		last = temp[0]
-		data.append(["The most recent place you visited before your data was downloaded was " + last[0][u'name'] + " on "  + str(datetime.fromtimestamp(last[0][u'creation_timestamp']))])
+		fp.write("The most recent place you visited before your data was downloaded was " + last[0][u'name'] + " on "  + str(datetime.fromtimestamp(last[0][u'creation_timestamp'])) + ".\n")
 
 
 	if folder == "payment_history": 
 		with open(facebook_dir + folder + "/payment_history.json") as data_file:    
 			temp = json.load(data_file)
-		data.append(["You sent " + str(temp[u'payments'][ u'payments'][0][u'amount']) + " to " + temp[u'payments'][ u'payments'][0][ u'receiver'] + " on " + str(datetime.fromtimestamp(temp[u'payments'][ u'payments'][0][u'created_timestamp']))])
+		fp.write("You sent " + str(temp[u'payments'][ u'payments'][0][u'amount']) + " to " + temp[u'payments'][ u'payments'][0][ u'receiver'] + " on " + str(datetime.fromtimestamp(temp[u'payments'][ u'payments'][0][u'created_timestamp'])) + ".\n")
 
-print(data)
 
